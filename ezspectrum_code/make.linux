@@ -1,9 +1,14 @@
 CC=gcc
+CXX=g++
+CCFLAGS=-O3 --std=c++11
 
-CCFLAGS = -O3 --std=c++11
-
-LARMA= -larmadillo
-LDFLAGS = $(LARMA) -lm 
+# If armadillo is installed to a non-default location, set the ARMADILLO_ROOT 
+# variable to the appropriate path. The path directory must include:
+# - the libraries directory ('lib64' in the example below)
+# - the include directory ('include' in the example below)
+ARMADILLO_ROOT = /home1/pwojcik/tools/armadillo
+INCLUDE_ARMADILLO = -I$(ARMADILLO_ROOT)/include
+LD_FLAGS = -L$(ARMADILLO_ROOT)/lib64 -Wl,-rpath,$(ARMADILLO_ROOT)/lib64 -larmadillo
 
 CODE = ezFCF_linux.exe
 
@@ -20,15 +25,15 @@ CXX_WNO_DEPRECATED = -Wno-deprecated
 INCLUDES_COMMON = -I molecular_prop/ -I basic_methods/ 
 INCLUDES_HARMONIC_PES = -I harmonic_pes/
 
-INCLUDES = $(INCLUDES_COMMON) $(INCLUDES_HARMONIC_PES)  
+INCLUDES = $(INCLUDE_ARMADILLO) $(INCLUDES_COMMON) $(INCLUDES_HARMONIC_PES)  
 
 CXXBINOBJ = $(CXX_SRC:%.C=%.o)
 
 $(CODE): $(CXXBINOBJ)
-	$(CXX) $^ $(LDFLAGS) $(INCLUDES) -o $(CODE)
+	$(CXX) $^ $(CCFLAGS) $(LD_FLAGS) $(INCLUDES) -o $(CODE)
 
 %.o: %.C
 	$(CXX) $(CXX_WNO_DEPRECATED) $(CCFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	/bin/rm -f $(CODE) *.o $(CXXBINOBJ)	
+	/bin/rm -f $(CODE) *.o $(CXXBINOBJ)
